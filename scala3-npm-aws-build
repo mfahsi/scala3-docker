@@ -1,18 +1,22 @@
 # Use the provided image as the base
 FROM sbtscala/scala-sbt:graalvm-ce-22.3.3-b1-java17_1.9.6_3.3.1
 
-# Update package list and install curl and unzip
-RUN apk update && \
-    apk add --no-cache curl unzip bash
+# Install curl, unzip, and other required tools
+RUN dnf update -y && \
+    dnf install -y curl unzip bash
 
 # Install Node.js
-RUN curl -sL https://unofficial-builds.nodejs.org/download/release/v14.18.0/node-v14.18.0-linux-x64-musl.tar.xz | tar -xJ -C /usr/local --strip-components=1
+RUN curl -sL https://rpm.nodesource.com/setup_14.x | bash - && \
+    dnf install -y nodejs
 
 # Install AWS CLI version 2
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
     ./aws/install && \
     rm -rf awscliv2.zip
+
+# Clean up to reduce image size
+RUN dnf clean all
 
 # Confirm installations
 RUN node -v
