@@ -1,1 +1,26 @@
-f
+# Use the provided image as the base
+FROM sbtscala/scala-sbt:graalvm-ce-22.3.3-b1-java17_1.9.6_3.3.1
+
+# Install curl and other dependencies
+RUN apt-get update && \
+    apt-get install -y curl unzip
+
+# Install Node.js
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get install -y nodejs
+
+# Install AWS CLI version 2
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    sudo ./aws/install
+
+# Clean up
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf awscliv2.zip
+
+# Confirm installations
+RUN node -v
+RUN npm -v
+RUN aws --version
+
