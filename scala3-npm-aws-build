@@ -1,3 +1,7 @@
+# Define ARGs with default values (if you want)
+ARG SCALA_VERSION=3.1.1
+ARG SBT_VERSION=1.9.6
+
 # Use the provided sbt and scala image as the base
 FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.8.1_1_1.9.5_2.12.18
 
