@@ -1,5 +1,5 @@
 # Use the specified Alpine version as the base
-FROM alpine:3.15 AS build
+FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.8.1_1_1.9.5_2.12.18 AS build
 
 ENV SBT_VERSION=1.9.6
 ENV SBT_HOME="/usr/local/sbt"
