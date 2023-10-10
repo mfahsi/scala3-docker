@@ -1,25 +1,46 @@
-# Use the provided image as the base
-FROM sbtscala/scala-sbt:graalvm-ce-22.3.3-b1-java17_1.9.6_3.3.1
+# Use the specified Alpine version as the base
+FROM alpine:3.15 AS build
 
-# Install curl, unzip, and other dependencies using apt-get
-RUN apt-get update && \
-    apt-get install -y curl unzip bash
+ENV SBT_VERSION=1.9.6
+ENV SBT_HOME="/usr/local/sbt"
 
-# Install Node.js
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs
+# Create a dedicated group and user
+RUN addgroup -g 1000 runner \
+    && adduser -u 1000 -G runner -s /bin/sh -D runner
 
-# Install AWS CLI version 2
+# Install tools, dependencies and OpenJDK 17
+RUN apk update \
+    && apk add --no-cache --upgrade \
+    bash \
+    ca-certificates \
+    curl \
+    wget \
+    tar \
+    openjdk17 \
+    nodejs \
+    npm
+
+
+
+# Install AWS CLI v2
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
-    sudo ./aws/install && \
+    ./aws/install && \
     rm -rf awscliv2.zip
 
-# Clean up to reduce image size
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install sbt
+RUN mkdir -vp "${SBT_HOME}" \
+    && wget --inet4-only "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" \
+    && tar -zxvf "sbt-${SBT_VERSION}.tgz" -C "${SBT_HOME}" --strip-components=1 \
+    && rm -rf "sbt-${SBT_VERSION}.tgz" \
+    && ln -sf "${SBT_HOME}/bin/sbt" "/usr/bin/sbt" \
+    && sbt sbtVersion
 
 # Confirm installations
 RUN node -v
 RUN npm -v
+RUN docker -v
 RUN aws --version
+
+# Cleaning image
+RUN rm -rfv /tmp/*
