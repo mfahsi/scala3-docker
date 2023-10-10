@@ -5,7 +5,7 @@ FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.8.1_1_1.9.5_2.12.18
 RUN apt-get update && \
     apt-get install -y curl unzip && \
     curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y nodejs npm
 
 # Install AWS CLI version 2
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
