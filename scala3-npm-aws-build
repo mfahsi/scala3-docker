@@ -1,46 +1,25 @@
-# Use the specified Alpine version as the base
-FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.8.1_1_1.9.5_2.12.18 AS build
+# Use the provided sbt and scala image as the base
+FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.8.1_1_1.9.5_2.12.18
 
-ENV SBT_VERSION=1.9.6
-ENV SBT_HOME="/usr/local/sbt"
+# Install Node.js and other dependencies
+RUN apt-get update && \
+    apt-get install -y curl unzip && \
+    curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
 
-# Create a dedicated group and user
-RUN addgroup -g 1000 runner \
-    && adduser -u 1000 -G runner -s /bin/sh -D runner
-
-# Install tools, dependencies and OpenJDK 17
-RUN apk update \
-    && apk add --no-cache --upgrade \
-    bash \
-    ca-certificates \
-    curl \
-    wget \
-    tar \
-    openjdk17 \
-    nodejs \
-    npm
-
-
-
-# Install AWS CLI v2
+# Install AWS CLI version 2
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
-    ./aws/install && \
+    sudo ./aws/install && \
     rm -rf awscliv2.zip
 
-# Install sbt
-RUN mkdir -vp "${SBT_HOME}" \
-    && wget --inet4-only "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" \
-    && tar -zxvf "sbt-${SBT_VERSION}.tgz" -C "${SBT_HOME}" --strip-components=1 \
-    && rm -rf "sbt-${SBT_VERSION}.tgz" \
-    && ln -sf "${SBT_HOME}/bin/sbt" "/usr/bin/sbt" \
-    && sbt sbtVersion
+# Clean up to reduce image size
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Confirm installations
 RUN node -v
 RUN npm -v
-RUN docker -v
 RUN aws --version
 
-# Cleaning image
-RUN rm -rfv /tmp/*
+CMD ["bash"]
