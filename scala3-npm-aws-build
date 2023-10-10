@@ -1,17 +1,14 @@
 # Use the provided sbt and scala image as the base
 FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.8.1_1_1.9.5_2.12.18
 
-# Install Node.js and other dependencies
+# Install Node.js, npm, and other dependencies
 RUN apt-get update && \
-    apt-get install -y curl unzip && \
+    apt-get install -y curl unzip python3-pip && \
     curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs npm
 
-# Install AWS CLI version 2
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    ./aws/install && \
-    rm -rf awscliv2.zip
+# Install AWS CLI version 1
+RUN pip3 install awscli --upgrade
 
 # Clean up to reduce image size
 RUN apt-get clean && \
