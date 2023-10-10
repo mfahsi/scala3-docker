@@ -1,11 +1,15 @@
 # Use the provided sbt and scala image as the base
 FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.8.1_1_1.9.5_2.12.18
 
-# Install Node.js, npm, and other dependencies
+# Install Node.js, npm, Docker CLI and other dependencies
 RUN apt-get update && \
-    apt-get install -y curl unzip python3-pip && \
+    apt-get install -y curl unzip python3-pip apt-transport-https ca-certificates gnupg-agent software-properties-common && \
     curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs npm
+    apt-get install -y nodejs npm && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli
 
 # Install AWS CLI version 1
 RUN pip3 install awscli --upgrade
@@ -18,5 +22,6 @@ RUN apt-get clean && \
 RUN node -v
 RUN npm -v
 RUN aws --version
+RUN docker --version
 
 CMD ["bash"]
