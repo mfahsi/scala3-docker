@@ -1,20 +1,16 @@
-# Define ARGs with default values (if you want)
-
-# Use the provided sbt and scala image as the base
-FROM sbtscala/scala-sbt:eclipse-temurin-focal-17.0.8.1_1_1.9.6_3.3.1
+# Use Amazon Corretto 17 on Alpine as the base
+FROM amazoncorretto:17-alpine3.18
 
 # Install Node.js, npm, and other dependencies
-RUN apt-get update && \
-    apt-get install -y curl unzip python3-pip && \
-    curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs npm
+RUN apk update && \
+    apk add --no-cache curl unzip py3-pip bash && \
+    apk add --no-cache nodejs npm
 
 # Install AWS CLI version 1
-RUN pip3 install awscli --upgrade
+RUN pip3 install --no-cache-dir awscli
 
-# Clean up to reduce image size
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Add a logs folder
+RUN mkdir -p /opt/docker/logs
 
 # Confirm installations
 RUN node -v
